@@ -41,8 +41,8 @@ services:
     pid: host
     volumes:
       - /:/host:ro,rslave
-    expose:
-      - "9100"
+    ports:
+      - "127.0.0.1:9100:9100"
     restart: unless-stopped
 
   blackbox_exporter:
@@ -52,8 +52,8 @@ services:
       - --config.file=/etc/blackbox/blackbox.yml
     volumes:
       - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml:ro
-    expose:
-      - "9115"
+    ports:
+      - "127.0.0.1:9115:9115"
     restart: unless-stopped
 
   nginx:
