@@ -13,6 +13,7 @@ services:
     depends_on:
       - node_exporter
       - blackbox_exporter
+      - alertmanager
     restart: unless-stopped
 
   grafana:
@@ -63,4 +64,32 @@ services:
       - ./nginx/html:/usr/share/nginx/html:ro
     ports:
       - "8080:80"
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports:
+      - "127.0.0.1:9093:9093"
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    container_name: mosquitto
+    command: mosquitto -c /mosquitto-no-auth.conf
+    restart: unless-stopped
+
+  notifier:
+    build: ./notifier
+    image: tp4-notifier:1.0
+    container_name: notifier
+    environment:
+      - NTFY_TOPIC=utnfrlp-g5-alertas-7f3k
+    depends_on:
+      - mosquitto
+      - alertmanager
     restart: unless-stopped
